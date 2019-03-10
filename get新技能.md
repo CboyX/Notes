@@ -50,3 +50,19 @@ jar -cvf testjar.jar ./cn
 netstat -ano|findstr "8080"
 ```
 
+
+
+#### 4.[超链接测试](http://www.baidu.com)
+
+
+
+#### 5.IDEA批量修改快捷键（Shift+F6）
+
+* 先选中要修改的名称，然后再Shift+F6，继续修改就行。
+
+
+
+#### 6.编码规范
+
+1. 注释和代码不要在同一行
+

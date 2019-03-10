@@ -99,3 +99,7 @@
 ![1545208152354](assets/1545208152354.png)
 
 ![1545207663876](assets/1545207663876.png)
+
+##### 9.Handler和Controller的区别
+
+Handler是controller中的方法，而controller是整个@controller类
