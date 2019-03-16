@@ -11,11 +11,11 @@
 
 #### 2. 使用concat实现字符连接
 
-![1550842044649](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1550842044649.png)
+![1550842044649](assets/1550842044649.png)
 
 #### 3. DESC+表名  可以查看指定表的结构
 
-![1550842342337](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1550842342337.png)
+![1550842342337](assets/1550842342337.png)
 
 
 
@@ -83,7 +83,7 @@ SELECT * from servlet.`user` WHERE `name` IS NULL
 
 **查询语句的执行先后顺序：from、where、select、order by、limit**
 
-![1551617141957](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551617141957.png)
+![1551617141957](assets/1551617141957.png)
 
 排序时可以根据**别名**和**表达式**进行排序,例子如下： 
 
@@ -102,7 +102,7 @@ ORDER BY LENGTH(username)  --这里根据函数排序
 
 结果为：
 
-![1550929239845](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1550929239845.png)
+![1550929239845](assets/1550929239845.png)
 
 ##### 2.根据别名排序
 
@@ -132,7 +132,7 @@ ORDER BY LENGTH(username) DESC,username ASC
 
 结果为：
 
-![1550930126172](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1550930126172.png)
+![1550930126172](assets/1550930126172.png)
 
 
 
@@ -162,9 +162,9 @@ ORDER BY LENGTH(username) DESC,username ASC
 
 * 流程控制函数
 
-  ![1551101341891](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551101341891.png)
+  ![1551101341891](assets/1551101341891.png)
 
-![1551101388302](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551101388302.png)
+![1551101388302](assets/1551101388302.png)
 
 #### 12.分组函数
 
@@ -188,19 +188,19 @@ ORDER BY LENGTH(username) DESC,username ASC
 
   ![1551617940794](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551617940794.png)
 
-![1551617968882](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551617968882.png)
+![1551617968882](assets/1551617968882.png)
 
 
 
 ![1551619454892](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551619454892.png)
 
-![1551619480811](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551619480811.png)
+![1551619480811](assets/1551619480811.png)
 
 
 
 ##### tip:
 
-![1551618945510](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551618945510.png)
+![1551618945510](assets/1551618945510.png)
 
 * group by 后面跟的可以是数据库字段（单个字段或者多个字段）、表达式、函数
 
@@ -208,13 +208,13 @@ ORDER BY LENGTH(username) DESC,username ASC
 
 * 分组后再添加排序，例子：
 
-  ![1551620105136](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551620105136.png)
+  ![1551620105136](assets/1551620105136.png)
 
 
 
   练习：
 
-  ![1551620466222](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551620466222.png)
+  ![1551620466222](assets/1551620466222.png)
 
 
 
@@ -246,35 +246,35 @@ sql92语法:
 
 等值连接，例子：
 
-![1551623157510](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551623157510.png)
+![1551623157510](assets/1551623157510.png)
 
 
 
 自连接，例子：
 
-![1551624104879](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551624104879.png)
+![1551624104879](assets/1551624104879.png)
 
 
 
 sql99语法：内连接（inner可以省略）
 
-![1551624409120](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551624409120.png)
+![1551624409120](assets/1551624409120.png)
 
 等值连接，例子：
 
-![1551624710729](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551624710729.png)
+![1551624710729](assets/1551624710729.png)
 
 
 
-![1551624873351](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551624873351.png)
+![1551624873351](assets/1551624873351.png)
 
 
 
-![1551624998920](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551624998920.png)
+![1551624998920](assets/1551624998920.png)
 
 
 
-![1551625431124](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551625431124.png)
+![1551625431124](assets/1551625431124.png)
 
 
 
@@ -284,7 +284,7 @@ sql99语法：内连接（inner可以省略）
 
 特点：
 
-![1551626440939](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551626440939.png)
+![1551626440939](assets/1551626440939.png)
 
 主表的选择：所要查询的数据大多数来自哪个表，就把哪个表作为主表。
 
@@ -292,25 +292,25 @@ sql99语法：内连接（inner可以省略）
 
 例子：
 
-![1551627064348](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551627064348.png)
+![1551627064348](assets/1551627064348.png)
 
 
 
 ![1551627120165](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551627120165.png)
 
-![1551627151031](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551627151031.png)
+![1551627151031](assets/1551627151031.png)
 
 
 
-![1551796562540](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551796562540.png)
+![1551796562540](assets/1551796562540.png)
 
 
 
-![1551796636432](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551796636432.png)
+![1551796636432](assets/1551796636432.png)
 
 
 
-![1551797189810](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551797189810.png)
+![1551797189810](assets/1551797189810.png)
 
 
 
@@ -318,13 +318,13 @@ sql99语法：内连接（inner可以省略）
 
 * 介绍
 
-  ![1551797665453](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551797665453.png)
+  ![1551797665453](assets/1551797665453.png)
 
-![1551797803531](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551797803531.png)
+![1551797803531](assets/1551797803531.png)
 
 * ##### 重点：where或having后面的子查询
 
-  ![1551965601239](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551965601239.png)
+  ![1551965601239](assets/1551965601239.png)
 
   * 标量子查询
 
@@ -361,17 +361,17 @@ sql99语法：内连接（inner可以省略）
     例1：
 
     ![1552222652503](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552222652503.png)
-    ![1552222704977](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552222704977.png)
+    ![1552222704977](assets/1552222704977.png)
     等价于：（小于其中一个等价于小于其中的最大值）
-    ![1552222757379](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552222757379.png)
+    ![1552222757379](assets/1552222757379.png)
 
     例2：
 
     ![1552222938458](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552222938458.png)
-    ![1552222957819](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552222957819.png)
+    ![1552222957819](assets/1552222957819.png)
     等价于：（小于所有的等价于小于其最小值）
 
-    ![1552223037508](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552223037508.png)
+    ![1552223037508](assets/1552223037508.png)
 
 
     tip:    IN 等价于  =ANY  , NOT  IN 等价于 <>ALL
@@ -384,7 +384,7 @@ sql99语法：内连接（inner可以省略）
 
   ![1552223525632](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552223525632.png)
 
-![1552223555893](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552223555893.png)
+![1552223555893](assets/1552223555893.png)
 
 * ##### select后面的子查询，只允许是标量子查询（也就是说只允许一行一列的子查询）
 
@@ -392,8 +392,8 @@ sql99语法：内连接（inner可以省略）
 
   例子：
 
-  ![1552224714581](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552224714581.png)
-  ![1552224742196](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552224742196.png)
+  ![1552224714581](assets/1552224714581.png)
+  ![1552224742196](assets/1552224742196.png)
 
 * #####  exists后面的子查询（相关子查询，指的是子查询中的条件用到了主查询中的字段）
 
@@ -408,11 +408,11 @@ sql99语法：内连接（inner可以省略）
 
   例子：
 
-  ![1552225370629](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552225370629.png)
-  ![1552225409564](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552225409564.png)
+  ![1552225370629](assets/1552225370629.png)
+  ![1552225409564](assets/1552225409564.png)
 
   等价于：
 
-  ![1552225614082](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552225614082.png)
+  ![1552225614082](assets/1552225614082.png)
 
   ##### 注：能用exists的子查询都能用IN 来代替

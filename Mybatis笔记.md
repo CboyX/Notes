@@ -34,7 +34,7 @@ EmployeeMaaper empMapper = sqlSession.getMapper(EmployeeMaaper.class);
 
 #### 5.别名
 
-![1551360154548](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551360154548.png)
+![1551360154548](assets/1551360154548.png)
 
 
 

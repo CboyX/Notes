@@ -2,7 +2,7 @@
 
 * 必须开启电脑中的Hyper-V功能
 
-  ![1548404170536](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1548404170536.png)
+  ![1548404170536](assets/1548404170536.png)
 
 #### 2.docker常用命令（CnetOS环境下）
 
@@ -168,7 +168,7 @@ docker run -id -v 宿主机目录:容器目录 --privileged=true --name=创建�
 
   然后再在该文件中添加相应配置，例子如下
 
-  ![1550293661830](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1550293661830.png)
+  ![1550293661830](assets/1550293661830.png)
 
   其他标签：
 
