@@ -107,3 +107,167 @@ var obj = {
 
 ##### 说明：换成箭头函数后，就可以直接使用this关键来调用obj的fanc方法了，因为此时的this（箭头函数中的this）是它上一层函数（方法）所属于的对象的引用，也就是test函数（方法）所属于的对象是obj对象。
 
+
+
+#### 5.事件的绑定
+
+* ##### JS中的事件绑定
+
+1. ##### 普通绑定：一般是直接在HTML元素中进行绑定，如下面例子，直接在div标签中绑定了onmouseover事件和onmouseout事件。
+
+   ```js
+   <body>
+   <div id="div1" onmouseover="onOver(this)" onmouseout="onOut(this)"></div>
+   <script type="text/javascript">
+       function onOut(oj) {
+           // document.getElementById("div1").innerHTML = "world";
+           oj.innerHTML = "world";
+       }
+       function onOver(oj) {
+           oj.innerHTML = "hello";
+       }
+   </script>
+   </body>
+   ```
+
+2. ##### DOM0级事件绑定：特点，为同一个元素添加多个事件时，最后一个事件会覆盖前面事件。例子：
+
+   ```js
+   <button id="btn01">按钮1</button><br>
+   <script type="text/javascript">
+       /*
+       *  DOM0级事件处理程序的特点：
+       *  为同一个元素添加多个事件时，最后一个事件会覆盖前面事件
+       * */
+       //第一种写法
+       document.getElementById("btn01").onclick = function () {
+           alert("DOM0级事件处理程序1");
+       }
+       //第二种写法
+       document.getElementById("btn01").onclick = demo;
+       function demo() {
+           alert("DOM0级事件处理程序2");
+       }
+       document.getElementById("btn01").onmouseover = function () {
+           alert("DOM0级事件处理程序3");
+       }
+   
+   //移除事件
+       document.getElementById("btn01").onclick = null;
+       document.getElementById("btn01").onmouseover = null;
+   </script>
+   ```
+
+3. ##### DOM2级事件绑定：特点，为同一个元素添加多个事件时，后面的事件不会覆盖前面的事件，而是会依次执行所有被添加的事件。
+
+   ```js
+   <button id="btn02">按钮2</button>
+   <script type="text/javascript">
+   //第一种写法
+       document.getElementById("btn02").addEventListener("click",function () {
+           alert("DOM2级事件处理程序1");
+       });
+       //第二种写法
+       document.getElementById("btn02").addEventListener("click",demo);
+       function demo() {
+           alert("DOM2级事件处理程序2");
+       }
+       //移除事件(这里移除的是第二种的写法的click事件)
+       document.getElementById("btn02").removeEventListener("click",demo);
+   </script>
+   ```
+
+* ##### jquery中的事件绑定
+
+  ##### 1.普通绑定：
+
+  ``` js
+  <script type="text/javascript">
+          $(document).ready(function () {//当页面加载完成后执行本函数
+              $("p").click(function () {//为所有p标签绑定click事件
+                  $(this).hide();
+              });
+          });
+  </script>
+  <p>hello!</p>
+  <p>world!</p>
+  ```
+
+  ##### 2.bind绑定，unbind解除绑定
+
+  ```
+  为同一个元素添加多个事件时，后面的事件不会覆盖前面的事件，而是会依次执行所有被添加的事件
+  ```
+
+  ```js
+  <script type="text/javascript">
+          $(document).ready(function () {//当页面加载完成后执行本函数
+              $("p").bind("click",function () {//为所有p标签绑定click事件
+                  $(this).hide();
+              });
+          });
+  </script>
+  <p>hello!</p>
+  <p>world!</p>
+  ```
+
+  ##### 等价于：
+
+  ```js
+  <script type="text/javascript">
+          $(document).ready(function () {//当页面加载完成后执行本函数
+  			$("p").bind("click",clickdemo);//为所有p标签绑定click事件
+      		//解绑事件
+      		$("p").unbind("click");
+          });
+          function clickdemo() {
+              $(this).hide();
+          }
+  </script>
+  <p>hello!</p>
+  <p>world!</p>
+  ```
+
+  ##### 官方推荐：on绑定，off解除绑定（jquery1.7之后才可以使用）
+
+  ##### 为同一个元素添加多个事件时，后面的事件不会覆盖前面的事件，而是会依次执行所有被添加的事件
+
+  ```js
+  <script type="text/javascript">
+          $(document).ready(function () {//当页面加载完成后执行本函数
+  			$("p").on("click",clickdemo);//为所有p标签绑定click事件
+              $("p").off("click");
+      	});
+          function clickdemo() {
+              $(this).hide();
+          }
+  </script>
+  <p>hello!</p>
+  <p>world!</p>
+  ```
+
+#### 4.jQuery中设置标签的css属性
+
+* ##### 设置单个属性
+
+```js
+<div></div>
+<script type="text/javascript">
+    //为div标签设置背景颜色
+    $("div").css("backgroundcolor","red");
+</script>
+```
+
+* ##### 设置多个属性:当设置多个属性时，可以写成对象的形式。
+
+  ```js
+  <div></div>
+  <script type="text/javascript">
+      //为div标签设置背景颜色
+      $("div").css({
+      backgroundcolor:"red",
+      height:"100px",
+      width:"100px"
+  });
+  </script>
+  ```

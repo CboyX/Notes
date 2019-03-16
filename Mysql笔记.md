@@ -158,7 +158,7 @@ ORDER BY LENGTH(username) DESC,username ASC
 
 * 日期函数
 
-  ![1551100270356](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551100270356.png)
+  ![1551100270356](assets/1551100270356.png)
 
 * 流程控制函数
 
@@ -186,13 +186,13 @@ ORDER BY LENGTH(username) DESC,username ASC
 
   例子：
 
-  ![1551617940794](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551617940794.png)
+  ![1551617940794](assets/1551617940794.png)
 
 ![1551617968882](assets/1551617968882.png)
 
 
 
-![1551619454892](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551619454892.png)
+![1551619454892](assets/1551619454892.png)
 
 ![1551619480811](assets/1551619480811.png)
 
@@ -296,7 +296,7 @@ sql99语法：内连接（inner可以省略）
 
 
 
-![1551627120165](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1551627120165.png)
+![1551627120165](assets/1551627120165.png)
 
 ![1551627151031](assets/1551627151031.png)
 
@@ -360,14 +360,14 @@ sql99语法：内连接（inner可以省略）
   * 列子查询
     例1：
 
-    ![1552222652503](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552222652503.png)
+    ![1552222652503](assets/1552222652503.png)
     ![1552222704977](assets/1552222704977.png)
     等价于：（小于其中一个等价于小于其中的最大值）
     ![1552222757379](assets/1552222757379.png)
 
     例2：
 
-    ![1552222938458](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552222938458.png)
+    ![1552222938458](assets/1552222938458.png)
     ![1552222957819](assets/1552222957819.png)
     等价于：（小于所有的等价于小于其最小值）
 
@@ -382,7 +382,7 @@ sql99语法：内连接（inner可以省略）
 
   例子：
 
-  ![1552223525632](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\1552223525632.png)
+  ![1552223525632](assets/1552223525632.png)
 
 ![1552223555893](assets/1552223555893.png)
 
