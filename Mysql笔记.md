@@ -23,7 +23,7 @@
 
 IFNULL(参数一，参数二)，参数一是字段名，参数二是若参数一为null，则要设置的值。
 
-例子：查询工资表里所有的员工的员工对应的工资，若工资为null,则显示0。
+例子：查询工资表里所有的员工对应的工资，若工资为null,则显示0。
 
 ```sql
 select last_name,IFNULL(bill,0) from tb_salary;
