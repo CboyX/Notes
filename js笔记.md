@@ -271,3 +271,49 @@ var obj = {
   });
   </script>
   ```
+
+
+
+### siblings(取兄弟节点)
+
+以动态改变购物车商品数量代码为例：
+
+![1556610010023](assets/1556610010023.png)
+
+######  jsp代码部分截图  ######
+
+![1556609732150](assets/1556609732150.png)
+
+jsp代码解析：
+
+​	点击`+`会增加数量，`-`会减少数量。它们都是一个`a`标签，但是图中代码的a标签中并没有跳转链接或者是设置onclick事件，所以a`标签的点击事件是以`class`，也就是通过js代码来实现的。
+
+```js
+########  js代码   ########
+var CART = {
+	itemNumChange : function(){
+		$(".increment").click(function(){//＋
+			var _thisInput = $(this).siblings("input");  //解析语句
+			_thisInput.val(eval(_thisInput.val()) + 1);
+			$.post("/cart/update/num/"+_thisInput.attr("itemId")+"/"+_thisInput.val() + ".action",function(data){
+				CART.refreshTotalPrice();
+			});
+		});
+		$(".decrement").click(function(){//-
+			var _thisInput = $(this).siblings("input");
+			if(eval(_thisInput.val()) == 1){
+				return ;
+			}
+			_thisInput.val(eval(_thisInput.val()) - 1);
+			$.post("/cart/update/num/"+_thisInput.attr("itemId")+"/"+_thisInput.val() + ".action",function(data){
+				CART.refreshTotalPrice();
+			});
+		});
+    }
+```
+
+代码解析：
+
+​	`var _thisInput = $(this).siblings("input");` 该句中的this是上面一句以increment为class的标签的对象(也就是上图的`a`标签)，把该对象用`$`括起来是为了把该对象转换成jQuery对象，然后就可以使用jQuery的方法。
+
+​	`siblings("input")` 该方法是用来取兄弟节点的，这里用来取`this`对象(上图的a标签)的一个兄弟节点`input`

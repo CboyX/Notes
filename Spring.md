@@ -1,4 +1,4 @@
-## 开始看1-06
+## 开始看2-11
 
 ### Spring框架Runtime(运行时)环境
 
@@ -137,3 +137,179 @@ ApplicationContext是BeanFactory的子接口。他们都可代表Spring容器，
 
 
 
+### 给对象属性赋值(注入)的方式
+
+1. 通过构造函数赋值（在`Bean`标签的`Constructor-arg`子标签中配置，前提是javaBean中要存在带参数的构造器）
+2. 通过set方法赋值（在`Bean`标签的`property`子标签中配置，前提是JavaBean中存在set方法,其本质就是执行的set方法）
+
+
+
+### DI(依赖注入)
+
+当一个类（A）中需要另一个类(B)时，把B赋值给A的过程就叫做依赖注入。
+
+DI和IOC其实是一回事。
+
+
+
+### Spring整合Mybaties
+
+待续。。。
+
+
+
+### AOP(面向切面编程)
+
+​	在程序原有纵向执行流程中，针对某一个或某一些方法添加通知，形成横切面过程就叫做面向切面编程。不需要修改原有程序的代码，是程序具有高扩展性。
+
+![1555249892864](assets/1555249892864.png)
+
+常用概念：
+
+- 切点(pointcut)：指的是原有的功能（方法）
+- 前置通知(before advice)：在切点之前执行的功能。可以理解成在切点之前所要执行的方法
+- 后置通知(after advice)：在切点执行之后的功能。可以理解成在切点之后所要执行的方法
+- 异常通知(throws advice)：如果切点执行过程中出现异常，会触发异常通知
+- 切面：所有功能的总称叫做切面(前置通知+切面+后置通知)
+- 织入：形成切面的过程叫做织入
+
+
+
+实现AOP的两种方式：
+
+1. **schema-base** 方式 （每个通知需要实现特定的接口）
+
+   **前置通知和后置通知**
+
+   * 添加AOP所需要的依赖(在spring基础依赖的基础上)
+
+     ```xml
+     		<dependency>
+                 <groupId>org.springframework</groupId>
+                 <artifactId>spring-aspects</artifactId>
+                 <version>4.3.18.RELEASE</version>
+             </dependency>
+             <dependency>
+                 <groupId>org.springframework</groupId>
+                 <artifactId>spring-tx</artifactId>
+                 <version>4.3.18.RELEASE</version>
+             </dependency>
+     ```
+
+   * 编写切点和通知类
+
+     * 前置通知的类必须实现`MethodBeforeAdvice`接口，才能实现该通知是在切点之前执行。
+     * 后置通知的类必须实现`AfterReturningAdvice`接口，才能实现该通知是在切点之后执行。
+
+   * 编写`applicationContext.xml`配置文件
+
+     * 添加约束
+
+       ```xml
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       
+       http://www.springframework.org/schema/aop
+       https://www.springframework.org/schema/aop/spring-aop.xsd
+       ```
+
+     * 将通知类交给Spring容器管理，然后在`<aop:config>`标签中配置切点和通知。
+
+       ![1555248917163](assets/1555248917163.png)
+
+     * 编写测试类
+
+     tips：*  表示通配符，匹配任意方法名、任意类名、任意一级包名。如希望匹配任意参数，括号里写两个点 `（..）`
+
+   **异常通知**
+
+   **环绕通知**（把前置通知和后置通知都写到一个通知中，就组成了环绕通知）
+
+   * 编写通知类，实现`MethodInterceptor`接口
+
+     ![1556031901211](assets/1556031901211.png)
+
+   * 配置`applicationContext.xml`配置文件，配置方式和前置通知以及后置通知一致。
+
+   * 编写测试类
+
+2. **aspectJ**方式（不需要实现特定的接口）
+
+   **异常通知**
+
+   * 编写通知类
+
+     ![1556028987464](assets/1556028987464.png)
+
+   * 编写`applicationContext.xml`配置文件
+
+     ![1556029282739](assets/1556029282739.png)
+
+   * 编写测试类
+
+   tips:一般我们在service层抛出异常，不对异常进行捕获，而是在controller层或者是调用层进行处理异常。
+
+   **前置通知、后置通知、异常通知、环绕前置通知和环绕后置通知**
+
+   * 编写通知
+
+     ![1556117240711](assets/1556117240711.png)
+
+   * 编写`applicationContext.xml`配置文件
+
+     ![1556117289110](assets/1556117289110.png)
+
+3. 注解形式（基于aspectJ）
+
+   spring要想使用注解，就必须引入`xmlns:context`这个约束.
+
+   然后就是配置包扫描，用于扫描指定包下的所有类，这样这些类就可以通过注解被spring容器加载。
+
+   可以说，注解就是用来代替配置文件的中的配置的。
+
+   @Component
+
+   相当于<bean>标签，加在类上，就相当于把这个类交给了spring容器，初始化容器时就会生成这个类的对象。`Component`注解默认生成的对象的名称是类名首字母小写。
+
+   ![1556287436364](assets/1556287436364.png)
+
+打印出spring容器中所有对象可以看到，
+
+![1556287544355](assets/1556287544355.png)
+
+`@Component`注解还可以自定义所生成的对象的名称，
+
+![1556287711111](assets/1556287711111.png)
+
+![1556287740136](assets/1556287740136.png)
+
+注解方式的步骤：
+
+   	1. 在spring配置文件中设置包扫描，使用`<context:component-scan>`标签
+   	2. 在类上加上`@Component`注解来配置bean，在方法上添加`@Pointcut`来定义切点
+   	3. 在通知类上添加`@Component`和`@Aspect`，表示通知方法在该类中。
+
+
+
+**静态代理**
+
+​	优点：
+
+​	缺点：当代理功能比较多时，代理类中需要写很多。
+
+**动态代理**
+
+​	为了解决静态代理频繁编写代理功能的缺点。
+
+​	分类：
+
+​		JDK动态代理
+
+​		cglib动态代理
+
+**JDK动态代理**
+
+​	优点：JDK自带，不需要额外导入jar。
+
+​	缺点：真实对象必须实现接口；
+
+​	 	   利用反射机制，效率不高；

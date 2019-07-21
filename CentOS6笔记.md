@@ -94,3 +94,20 @@ shutdown` `-h now    立即关机
 shutdown` `-h 12:00 ``'I will shutdown'`    `系统在今天的12:00关机，若现在时间在12:00之后，则隔天的12:00再关机，并发送I wil ``shutdown``消息
 shutdown` `-h +30    系统在30分钟后关机
 ```
+
+
+
+### 关闭防火墙
+
+暂时关闭防火墙，重启计算机后防火墙重新开启
+
+```shell
+service iptables stop
+```
+
+永久关闭防火墙
+
+```shell
+chkconfig iptables off
+```
+
