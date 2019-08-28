@@ -118,6 +118,12 @@
 
 
 
+### 修饰符
+
+![1566128810939](assets/1566128810939.png)
+
+
+
 ### 抽象类
 
 含有抽象方法的类称为抽象类，不能生成对象，即不能被new ,只能被继承；
@@ -615,3 +621,154 @@ System.out.println(sb);     //结果为 2方法链true3
 
 * 线程安全的可变字符序列（StringBuffer内部的方法都是由synchronized修饰的）
 * StringBuilder和StringBuffer的使用方式是一样的
+
+
+
+### 初始化顺序
+
+先 ==》后
+
+静态成员变量 ==》实例成员变量（非静态成员变量） ==》 构造器
+
+### 静态数据的初始化
+
+`tips:`  
+
+1. 静态成员是不属于对象（类的实例）的，也就是说不管创建多少对象，静态成员始终只有一个（即只被初始化一次，且在`该类第一次被实例化时`或者`用类名直接调用其中的静态成员变量时`初始化，以后的该类实例化都不会再初始化静态成员变量）。静态成员由类名直接调用。
+2. **静态成员的作用域是整个类**，所以不存在静态的局部变量
+3. 当类中包含`静态成员变量`和`非静态成员变量`时，先初始化`静态成员变量`（该类是第一次被实例化时或者用类名直接调用其中的静态成员变量时），若有多个`静态成员变量`则从上到下依次初始化；接着初始化`非静态成员变量`，若有多个`非静态成员变量`也是从上到下依次初始化。
+
+
+
+### 显示的静态初始化（静态代码块）
+
+*使用静态代码块来显示静态初始化*
+
+cup类：
+
+```java
+public class Cup {
+    public Cup(int mark) {
+        System.out.println("Cup("+mark+")");
+    }
+    public void f(int mark){
+        System.out.println("f("+mark+")");
+    }
+}
+```
+
+cups类：
+
+```java
+public class Cups {
+    static Cup cup1;
+    static Cup cup2;
+    static {
+        cup1 = new Cup(1);
+        cup2 = new Cup(2);
+    }
+
+    public Cups() {
+        System.out.println("Cups()");
+    }
+}
+```
+
+测试类1：
+
+```java
+public class test {
+    @Test
+    public void testdemo(){
+        Cups.cup1.f(99);   //使用类名直接调用静态成员变量时就会初始化类中的所有静态成员变量
+        System.out.println("====================");
+        Cups.cup2.f(100);
+    }
+}
+```
+
+结果：
+
+![1566988241827](assets/1566988241827.png)
+
+测试类2：
+
+```java
+public class test {
+    @Test
+    public void testdemo(){
+        Cups cups = new Cups();
+        System.out.println("====================");
+        Cups.cup1.f(99);
+        System.out.println("====================");
+        Cups.cup2.f(100);
+    }
+}
+```
+
+结果：
+
+![1566988758178](assets/1566988758178.png)
+
+
+
+结论：
+
+使用静态代码块时，该静态代码块只在`该类第一次被实例化时`或者`第一次用类名直接调用其中的静态成员变量时`被执行
+
+
+
+### 非静态实例初始化（非静态代码块）
+
+Mug类：
+
+```java
+public class Mug {
+    public Mug(int mark) {
+        System.out.println("Mug("+mark+")");
+    }
+}
+```
+
+Mugs类：
+
+```java
+public class Mugs {
+    Mug mug1;
+    Mug mug2;
+    {
+        mug1 = new Mug(1);
+        mug2 = new Mug(2);
+        System.out.println("notStaticInitial");
+    }
+
+    public Mugs() {
+        System.out.println("Mugs()");
+    }
+
+    public Mugs(int i){
+        System.out.println("Mugs(int)");
+    }
+}
+```
+
+测试类：
+
+```java
+public class TestDemo {
+    @Test
+    public void test(){
+        new Mugs();
+        System.out.println("====================");
+        new Mugs(1);
+    }
+}
+```
+
+结果：
+
+![1566988035090](assets/1566988035090.png)
+
+结论：
+
+使用非静态代码块时，每次创建对象都会执行该非静态代码块
