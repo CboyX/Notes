@@ -1,4 +1,6 @@
-#### 1.五种数据类型
+## redis是单线程的
+
+### 1.五种数据类型
 
 int
 
@@ -12,13 +14,13 @@ Sorted Set
 
 
 
-#### 2.查看内存中所有的key
+### 2.查看内存中所有的key
 
 ```shell
 keys *
 ```
 
-#### 3.设置key的过期时间
+### 3.设置key的过期时间
 
 ```shell
 expire key的名称 秒数（多少秒后过期）
@@ -205,7 +207,7 @@ Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置
 
      利用redis实现布隆过滤器
 
-     关键方法：setbit,getbit
+     使用到的redis中的方法：setbit,getbit
 
 
 ### 9.布隆过滤器的使用场景：
@@ -226,13 +228,13 @@ Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置
 
 #### 解决方法：
 
-​	1.将热点数据的key的过期时间设为永不过期
+​	1.将热点数据的key的过期时间设为永不过期（即使设为永不过期，也有可能出现莫名其妙的丢失的情况,这种现象是因为memcache的惰性删除机制,即LRU最近最少使用删除机制）
 
 ​	2.加JVM锁（简单的同步代码块）
 
-​		缺点：所对象太大，有可能把其他数据也锁上
+​		缺点：锁对象太大，有可能把其他数据也锁上
 
-​	3.加分布式锁（当服务部署在多态服务器上时）
+​	3.加分布式锁（当服务部署在多台服务器上时）
 
 ​		优点：只锁单个数据
 
@@ -257,3 +259,82 @@ Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置
 #### 解决方法：
 
 ​	以电商项目为例，一般是采取不同分类商品，缓存不同周期。在同一分类中的商品，加上一个随机因子。这样能尽可能分散缓存过期时间，而且，热门类目的商品缓存时间长一些，冷门类目的商品缓存时间短一些，也能节省缓存服务的资源。
+
+
+
+### redis分布式锁
+
+1. #### 单机版redis的情况
+
+   ##### 可能会出现的问题：
+
+   1.引发死锁。当业务程序挂掉时，此时正好key也过期了，
+
+   2.在释放锁时，如果是直接将该key删除的话，如果此时业务程序的运行时间大于redis中key的过期时间的话,那么会造成删除的是其他线程的key，引发错乱。
+
+   ##### 会用到的知识：
+
+   1.守护线程
+
+   2.redis的方法：setnx 和  setex
+
+   3.递归
+
+redis方法：setnx 和  setex
+
+方法说明 ：
+
+- setnx :表示 if not  exist ，判断key是否不存在，如果不存在返回`1`(true)，同时设置相应的value。如果存在则返回`0`(false)
+
+  ```shell
+  setnx key value
+  ```
+
+- setex：表示 expire  ，用来设置key的过期时间的同时可以设值。
+
+  ```shell
+  setex key expireTime value
+  ```
+
+
+
+  `tips`：1. 为了确保`原子性`,setnx和 setex要在同一行代码执行。
+
+  ​		2.设置key的过期时间，可以防止出现**死锁**的情况。
+
+  程序中代码如下：
+
+  ```java
+  private JedisPool jedisPool;
+  private static final String key = "lock";
+  
+  ##jedis版本在3.0以下
+  String s = UUID.randomUUID().toString();
+  Jedis resource = jedisPool.getResource();
+  String  lock = resource.set(key, s, "NX", "PX", 1000);  //key：要查询或设置的key，NX：表示 “if not exist”，PX：表示毫秒，1000：表示1000毫秒
+  resource.close();
+  
+  ##jedis版本在3.0以及上
+  SetParams Params = new SetParams();
+  Params.ex(2);  //过期时间为2秒
+  Params.nx();
+  String key = "lock";
+  String s = UUID.randomUUID().toString();
+  Jedis resource = jedisPool.getResource();
+  String  lock = resource.set(key, s, Params);
+  resource.close();
+  ```
+
+2. #### 集群版redis的情况
+
+   使用`redisson框架`来实现`redlock`锁。
+   添加依赖如下：
+
+   ```xml
+   <!--可是实现redlock分布式锁  单机redis和redis集群都适用（高可用）-->
+               <dependency>
+                   <groupId>org.redisson</groupId>
+                   <artifactId>redisson</artifactId>
+                   <version>3.10.7</version>
+               </dependency>
+   ```
