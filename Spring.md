@@ -285,8 +285,8 @@ DI和IOC其实是一回事。
 注解方式的步骤：
 
    	1. 在spring配置文件中设置包扫描，使用`<context:component-scan>`标签
-   	2. 在类上加上`@Component`注解来配置bean，在方法上添加`@Pointcut`来定义切点
-   	3. 在通知类上添加`@Component`和`@Aspect`，表示通知方法在该类中。
+      	2. 在类上加上`@Component`注解来配置bean，在方法上添加`@Pointcut`来定义切点
+         	3. 在通知类上添加`@Component`和`@Aspect`，表示通知方法在该类中。
 
 
 
@@ -313,3 +313,21 @@ DI和IOC其实是一回事。
 ​	缺点：真实对象必须实现接口；
 
 ​	 	   利用反射机制，效率不高；
+
+
+
+### autowired 和 reaource区别
+
+
+
+1. **主要区别就是@Autowired是默认按照类型装配的 @Resource默认是按照名称装配的**
+
+2. @Autowired默认**按类型装配**（这个注解是属业spring的），默认情况下必须要求依赖对象必须存在，如果要允许null值，可以设置它的required属性为false。**如果我们想使用名称装配可以结合@Qualifier注解进行使用，如下**：
+
+   ```java
+   @Autowired() 
+   @Qualifier("baseDao")    
+   private BaseDao baseDao;
+   ```
+
+3. @Resource **是JDK1.6支持的注解**，**默认按照名称进行装配**，名称可以通过name属性进行指定，如果没有指定name属性，当注解写在字段上时，默认取字段名，按照名称查找，如果注解写在setter方法上默认取属性名进行装配。当找不到与名称匹配的bean时才按照类型进行装配。但是需要注意的是，如果name属性一旦指定，就只会按照名称进行装配。
