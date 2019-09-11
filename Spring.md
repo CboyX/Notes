@@ -170,7 +170,7 @@ DI和IOC其实是一回事。
 - 前置通知(before advice)：在切点之前执行的功能。可以理解成在切点之前所要执行的方法
 - 后置通知(after advice)：在切点执行之后的功能。可以理解成在切点之后所要执行的方法
 - 异常通知(throws advice)：如果切点执行过程中出现异常，会触发异常通知
-- 切面：所有功能的总称叫做切面(前置通知+切面+后置通知)
+- 切面：所有功能的总称叫做切面(前置通知+切点+后置通知)
 - 织入：形成切面的过程叫做织入
 
 
@@ -285,7 +285,7 @@ DI和IOC其实是一回事。
 注解方式的步骤：
 
    	1. 在spring配置文件中设置包扫描，使用`<context:component-scan>`标签
-      	2. 在类上加上`@Component`注解来配置bean，在方法上添加`@Pointcut`来定义切点
+      ​      	2. 在类上加上`@Component`注解来配置bean，在方法上添加`@Pointcut`来定义切点
          	3. 在通知类上添加`@Component`和`@Aspect`，表示通知方法在该类中。
 
 
@@ -316,6 +316,43 @@ DI和IOC其实是一回事。
 
 
 
+### Spring事务
+
+![1568171087151](assets/1568171087151.png)
+
+1. #### 编程式事务
+
+   ![1568171526251](assets/1568171526251.png)
+
+2. #### 声明式事务
+
+![1568172838747](assets/1568172838747.png)
+
+![1568172661080](assets/1568172661080.png)
+
+
+
+
+
+### Spring常用注解
+
+1. @Component   创建类对象，相当于配置<bean/>，一般写在数据访问层或者实际业务层的类上。
+2. @Service   与@component功能相同，一般写在service层的类上。
+3. @Repository   与@component功能相同，一般写在数据访问层的类上。
+4. @Controller    与@component功能相同，一般写在控制器层的类上。
+5. @Resource 
+6. @autowired 
+7. @Value    获取properties文件中的内容，一般写在类的属性字段上。
+8. @Pointcut()     定义切点，一般写在切点类上。
+9. @Aspect()     定义切面
+10. @Before()     定义前置通知
+11. @After      定义后置通知
+12. @AfterReturning  定义后置通知（条件是切点必须正确执行）
+13. @AfterThrowing  定义异常通知
+14. @Around  定义环绕通知
+
+
+
 ### autowired 和 reaource区别
 
 
@@ -331,3 +368,86 @@ DI和IOC其实是一回事。
    ```
 
 3. @Resource **是JDK1.6支持的注解**，**默认按照名称进行装配**，名称可以通过name属性进行指定，如果没有指定name属性，当注解写在字段上时，默认取字段名，按照名称查找，如果注解写在setter方法上默认取属性名进行装配。当找不到与名称匹配的bean时才按照类型进行装配。但是需要注意的是，如果name属性一旦指定，就只会按照名称进行装配。
+
+
+
+### spring整合Web
+
+web应用下，Spring的Bean的装配方式：
+
+1. xml方式
+2. 注解方式
+
+- xml方式
+
+在javaSE中（或者说只引入了spring的几个核心依赖的情况下），是利用ClassPathXmlApplicationContext或者AnnotationConfigApplicationContext来初始化容器并获取Bean，但是在Web应用中就需要通过ContextLoaderListener来加载spring-context*.xml（Bean的配置文件）文件，从而实现Spring容器的初始化。然后编写配置类来获取容器中的Bean。
+
+配置类需要实现ApplicationContextAware接口和Disposable接口。当系统启动的时候，先加载Web.xml文件，然后通过ContextLoaderListener去加载其中的spring-context*.xml（Bean的配置文件），初始化ApplicationContext ，然后Spring再去调用实现了ApplicationContextAware接口的配置类中的setApplicationContext(ApplicationContext applicationContext )方法。将刚才初始化的ApplicationContext 传进去进行属性赋值 ，最后开一个公共的方法来供外部获取Bean就行了。
+
+配置类如下：
+
+![1568190088720](assets/1568190088720.png)
+
+![1568190022001](assets/1568190022001.png)
+
+![1568189905147](assets/1568189905147.png)
+
+**个人结论：说到底，ContextLoaderListener其实就相当于作为一个中转站或者说代理，间接的提供获取Spring容器中的Bean**
+
+![1568175674596](assets/1568175674596.png)
+
+
+
+添加依赖：
+
+![1568175742415](assets/1568175742415.png)
+
+web.xml:
+
+![1568186142287](assets/1568186142287.png)
+
+- 注解方式
+
+在Spring-context.xml文件中添加配置：
+
+![1568191740945](assets/1568191740945.png)
+
+
+
+### Spring整合SpringMVC
+
+添加依赖：
+
+![1568192991206](assets/1568192991206.png)
+
+配置web.xml文件：
+
+- 配置过滤器
+
+  ![1568193311421](assets/1568193311421.png)
+
+- 配置DispacherServlet
+
+  ![1568193434209](assets/1568193434209.png)
+
+配置spring-mvc.xml文件：
+
+![1568193608663](assets/1568193608663.png)
+
+
+
+### SpringMVC拦截器
+
+![1568195601715](assets/1568195601715.png)
+
+
+
+创建springMVC拦截器：
+
+![1568196054458](assets/1568196054458.png)
+
+在spring-mvc.xml中配置拦截器：
+
+![1568196678782](assets/1568196678782.png)
+
+exclude-mapping：表示指定路径下的资源不会被拦截
