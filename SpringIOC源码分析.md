@@ -140,3 +140,16 @@
 
 ![1568109446545](assets/1568109446545.png)
 
+
+
+
+
+### IOC容器
+
+所谓的IOC容器是由多个组件构成的，不是指单一的某个，这些组件都在BeanFactory里面。
+
+从源码上分析可知，组成IOC容器的组件有（这里只列举了其中三个）：
+
+- BeanDefinitionMap（Bean定义map）
+- singletonObjects（单例缓存池）
+- BeanPostprocessor（bean的后置处理器）

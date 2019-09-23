@@ -374,6 +374,153 @@ DI和IOC其实是一回事。
 
 3. @Resource **是JDK1.6支持的注解**，**默认按照名称进行装配**，名称可以通过name属性进行指定，如果没有指定name属性，当注解写在字段上时，默认取字段名，按照名称查找，如果注解写在setter方法上默认取属性名进行装配。当找不到与名称匹配的bean时才按照类型进行装配。但是需要注意的是，如果name属性一旦指定，就只会按照名称进行装配。
 
+4. 如果您不想依赖默认的bean命名策略，则可以提供自定义bean命名策略。首先，实现 [`BeanNameGenerator`](https://docs.spring.io/spring-framework/docs/5.1.9.RELEASE/javadoc-api/org/springframework/beans/factory/support/BeanNameGenerator.html) 接口，并确保包含默认的无参数构造函数。
+
+### 通过类型注入可能导致的问题
+
+异常信息如下：
+
+```java
+Caused by: org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.springiocdemo.dao.IndexDao' available: expected single matching bean but found 2: indexDaoImpl,indexDaoImpl02
+```
+
+dao实现类：
+
+```java
+@Component
+public class IndexDaoImpl implements IndexDao {
+    @Override
+    public String print() {
+        return "IndexDaoImpl的print方法";
+    }
+
+    public IndexDaoImpl() {
+        System.out.println("IndexDaoImpl的构造器");
+    }
+}
+```
+
+```java
+@Component
+public class IndexDaoImpl02 implements IndexDao {
+    @Override
+    public String print() {
+        return "IndexDaoImpl02的print方法";
+    }
+
+    public IndexDaoImpl02() {
+        System.out.println("IndexDaoImpl02的构造器");
+    }
+}
+```
+
+service类：
+
+```java
+@Service
+public class IndexService {
+    @Autowired
+    private IndexDao dao;
+
+    public void print(){
+        System.out.println(dao.print());
+    }
+}
+```
+
+造成原因：
+
+因为 `@Autowired`注解默认是通过类型注入，即在service里注入的是IndexDao类型，但此时有两个IndexDao的实现类，所以就会造成容器不能识别该注入哪一个实现类。
+
+解决方案一：
+
+在其中一个Dao实现类上加`@Primary`注解，意思就是加了该注解的类会优先被容器创建。
+
+解决方案二：
+
+在该service中的依赖属性上加上`@Qualifier("indexDaoImpl02")`，表示所要注入的对象是IndexDaoImpl02，Qualifier中的参数就是类名，且首字母小写。
+
+
+
+### 单例（singleton）对象中引用多例（prototype）对象
+
+这种情况的话，以为单例中引用了多例的对象，而单例对象只会容器被创建一次，所以只有一次机会来设置该单例对象中的属性（也就是里面的多例对象），所以该多例对象也只会被创建一次。
+
+但是现在我想解决这个问题，就是说在单例对象中引用多利对象的时候，让容器可以创建多个多例对象。目前提供两种解决方案：
+
+1. 将单例对象的类实现`ApplicationContextAware`接口，重写`setApplicationContext(ApplicationContext applicationContext)`方法，通过`applicationContext`去获取那个多例对象，也就是说每次获取到的多例对象都是不同的。
+
+   ```java
+   // a class that uses a stateful Command-style class to perform some processing
+   package fiona.apple;
+   
+   // Spring-API imports
+   import org.springframework.beans.BeansException;
+   import org.springframework.context.ApplicationContext;
+   import org.springframework.context.ApplicationContextAware;
+   
+   public class CommandManager implements ApplicationContextAware {
+   
+       private ApplicationContext applicationContext;
+   
+       public Object process(Map commandState) {
+           // grab a new instance of the appropriate Command
+           Command command = createCommand();
+           // set the state on the (hopefully brand new) Command instance
+           command.setState(commandState);
+           return command.execute();
+       }
+   
+       protected Command createCommand() {
+           // notice the Spring API dependency!
+           return this.applicationContext.getBean("command", Command.class);
+       }
+   
+       public void setApplicationContext(
+               ApplicationContext applicationContext) throws BeansException {
+           this.applicationContext = applicationContext;
+       }
+   }
+   ```
+
+2. 注解形式，使用`@Lookup`注解，使用该注解的方法必须是`Abstract`的。如下图：
+
+   ![1568777955635](assets/1568777955635.png)
+
+   亦或者是：
+
+   ```java
+   public abstract class CommandManager {
+   
+       public Object process(Object commandState) {
+           Command command = createCommand();
+           command.setState(commandState);
+           return command.execute();
+       }
+   
+       @Lookup("myCommand")
+       protected abstract Command createCommand();
+   }
+   ```
+
+
+
+### spring生命周期回调（控制bean的生命周期行为）
+
+##### 结合生命周期机制
+
+从Spring 2.5开始，您有三个控制bean生命周期行为的选项：
+
+- 在[`InitializingBean`](https://docs.spring.io/spring-framework/docs/current/spring-framework-reference/core.html#beans-factory-lifecycle-initializingbean)和 [`DisposableBean`](https://docs.spring.io/spring-framework/docs/current/spring-framework-reference/core.html#beans-factory-lifecycle-disposablebean)回调接口
+- 定制`init()`和`destroy()`方法
+- 在[`@PostConstruct`和`@PreDestroy` 注释](https://docs.spring.io/spring-framework/docs/current/spring-framework-reference/core.html#beans-postconstruct-and-predestroy-annotations)。您可以组合这些机制来控制给定的bean。
+
+
+
+### springAOP中的切面实例化模型(Aspect Instantiation Models)
+
+[Aspect Instantiation Models](https://docs.spring.io/spring-framework/docs/current/spring-framework-reference/core.html#aop-instantiation-models)
+
 
 
 ### spring整合Web

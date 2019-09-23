@@ -177,6 +177,16 @@
 
 
 
+### JVM内存区域
+
+![1569070209262](assets/1569070209262.png)
+
+运行时常量池所存放的是一些常量，例如：类名、方法名、参数名、变量名、字符串、数字等。
+
+![1569070433493](assets/1569070433493.png)
+
+
+
 ### 对象的内存解析
 
 ​	栈内存（stack）：存放局部变量和引用。
@@ -581,6 +591,866 @@ foreach ：只可循环遍历
 * 只存在常量和抽象方法
 * 接口支持多继承。
 
+### java动态性的两种常见实现方式
+
+- 反射机制
+- 字节码操作（可以无中生有，即自己可以在没有java文件的时候就创建class文件，然后通过反编译工具将class文件转成java文件）
+
+***tips:动态代理除了可以由反射实现，还可以用字节码操作来实现，性能比反射高一些，且开销小。***
+
+
+
+### 反射机制
+
+![1569020349230](assets/1569020349230.png)
+
+##### Class类介绍：
+
+![1569020419308](assets/1569020419308.png)
+
+##### Class类如何获取：
+
+![1569020561127](assets/1569020561127.png)
+
+##### 反射机制常见的作用：
+
+![1569020456520](assets/1569020456520.png)
+
+demo: 动态加载类，获取类的信息、动态构造对象、动态调用类和对象的任意方法、构造器
+
+##### Student类：
+
+```java
+public class Student {
+    private String id;
+    private String name;
+    private String sex;
+
+    public Student() {
+    }
+
+    public Student(String id, String name, String sex) {
+        this.id = id;
+        this.name = name;
+        this.sex = sex;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", sex='" + sex + '\'' +
+                '}';
+    }
+}
+```
+
+##### 测试类：
+
+```java
+@SuppressWarnings("all")
+public class TestReflect {
+    public static void main(String[] args) {
+        try {
+            Class c = Class.forName("reflect.dto.Student");
+            System.out.println(c);
+            System.out.println(c.getClass().getName());
+            System.out.println(c.getClass());
+            System.out.println(c.getName());
+            System.out.println(c.hashCode());
+
+            //通过反射调用构造函数（默认调用无参构造器）
+            Student student = (Student) c.newInstance();
+            System.out.println(student);
+            //通过反射调用构造函数（可以调用指定带参构造器）
+            Constructor constructor = c.getConstructor(String.class, String.class, String.class);
+            //再通过获得的指定构造器创建对象
+            Student student1 = (Student) constructor.newInstance("001", "zhansan", "男");
+            System.out.println(student1.getId());
+            System.out.println(student1);
+
+            //通过反射调用对象的方法
+            Method setName = c.getMethod("setName", String.class);
+            //invoke表示激活该方法
+            setName.invoke(student1,"李四");
+            System.out.println(student1);
+
+            //通过反射操作对象的属性(Declared可以获取到所有的，但是不代表可以操作)
+            Field name = c.getDeclaredField("name");
+            //设置可以访问操作
+            name.setAccessible(true);
+            //设置属性
+            name.set(student1,"wangwu");
+            System.out.println(student1);
+            System.out.println(name.get(student1));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+结果：
+
+![1569024780556](assets/1569024780556.png)
+
+
+
+##### 反射机制性能问题：
+
+应用中过多的使用反射的话，会导致系统运行速度变慢。
+
+提高反射机制的运行效率：setAccessible。
+
+![1569023830379](assets/1569023830379.png)
+
+##### 通过反射获取泛型信息：
+
+反射获取的是加载完成以后的类，而在java中，泛型在加载完成后会被擦除，所以直接用反射是获取不到泛型信息的，java提供了一些类型来保存泛型信息。如下图：
+
+![1569025189556](assets/1569025189556.png)
+
+##### demo:
+
+![1569026578351](assets/1569026578351.png)
+
+![1569026629888](assets/1569026629888.png)
+
+##### 通过反射获取注解信息：
+
+```java
+public class Demo05 {
+	public static void main(String[] args) {
+
+		try {
+			Class clazz = Class.forName("com.test.annotation.SxtStudent");
+			
+			//获得类的所有有效注解
+			Annotation[] annotations=clazz.getAnnotations();
+			for (Annotation a : annotations) {
+				System.out.println(a);
+			}
+			//获得类的指定的注解
+			SxtTable st = (SxtTable) clazz.getAnnotation(SxtTable.class);
+			System.out.println(st.value());
+			
+			//获得类的属性的注解
+			Field f = clazz.getDeclaredField("studentName");
+			SxtField sxtField = f.getAnnotation(SxtField.class);
+			System.out.println(sxtField.columnName()+"--"+sxtField.type()+"--"+sxtField.length());
+			
+			//根据获得的表名、字段的信息，拼出DDL语句，然后，使用JDBC执行这个SQL，在数据库中生成相关的表
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	
+	}
+}
+```
+
+
+
+### 字节码操作
+
+![1569028978831](assets/1569028978831.png)
+
+
+
+##### 常见的字节码操作类库：
+
+![1569029040549](assets/1569029040549.png)
+
+Javaassist类库：
+
+![1569029429585](assets/1569029429585.png)
+
+![1569029482535](assets/1569029482535.png)
+
+##### 使用javassist生成新的class文件（此时并不存在java文件，而是先生成class文件，后期通过反编译工具将class文件生成java文件）：
+
+emp类：
+
+```java
+package com.bjsxt.test;
+
+@Author(name="Cboy", year=2019) 
+public class Emp {
+	
+	private int empno;
+	private String ename;
+	
+	public void sayHello(int a){
+		System.out.println("sayHello,"+a);
+	}
+	
+	public int getEmpno() {
+		return empno;
+	}
+	public void setEmpno(int empno) {
+		this.empno = empno;
+	}
+	public String getEname() {
+		return ename;
+	}
+	public void setEname(String ename) {
+		this.ename = ename;
+	}
+	
+	public Emp(int empno, String ename) {
+		super();
+		this.empno = empno;
+		this.ename = ename;
+	}
+	
+	public Emp() {
+	}
+}
+```
+
+测试类：
+
+```java
+public class Demo01 {
+	public static void main(String[] args) throws Exception {
+		ClassPool pool = ClassPool.getDefault();
+        //注意：此时的”com.bjsxt.bean.Emp“路径并不是上面那个emp类，而是我们要新生成的class文件的路径
+		CtClass cc = pool.makeClass("com.bjsxt.bean.Emp");
+		
+		//创建属性
+		CtField f1 = CtField.make("private int empno;", cc);
+		CtField f2 = CtField.make("private String ename;", cc);
+		cc.addField(f1);
+		cc.addField(f2);
+		
+		//创建方法
+		CtMethod m1 = CtMethod.make("public int getEmpno(){return empno;}", cc);
+		CtMethod m2 = CtMethod.make("public void setEmpno(int empno){this.empno=empno;}", cc);
+		cc.addMethod(m1);
+		cc.addMethod(m2);
+		
+		//添加构造器
+		CtConstructor constructor = new CtConstructor(new CtClass[]{CtClass.intType,pool.get("java.lang.String")}, cc);
+		constructor.setBody("{this.empno=empno; this.ename=ename;}");
+		cc.addConstructor(constructor);
+		
+		cc.writeFile("c:/myjava"); //将上面构造好的类写入到c:/myjava中
+		System.out.println("生成类，成功！");
+	}
+}
+```
+
+Javassist的部分API的使用demo:
+
+```java
+public class Demo02 {
+	/**
+	 * 处理类的基本用法
+	 * @throws Exception 
+	 */
+	public static void test01() throws Exception{
+		ClassPool pool = ClassPool.getDefault();
+		CtClass cc = pool.get("com.bjsxt.test.Emp");
+		
+		byte[] bytes = cc.toBytecode();
+		System.out.println(Arrays.toString(bytes));
+		
+		System.out.println(cc.getName()); //获取类名
+		System.out.println(cc.getSimpleName()); //获取简要类名
+		System.out.println(cc.getSuperclass()); //获得父类
+		System.out.println(cc.getInterfaces()); //获得接口
+		
+	}
+	
+	/**
+	 * 测试产生新的方法
+	 * @throws Exception 
+	 */
+	public static void test02() throws Exception{
+		ClassPool pool = ClassPool.getDefault();
+		CtClass cc = pool.get("com.bjsxt.test.Emp");
+		
+//		CtMethod m = CtNewMethod.make("public int add(int a,int b){return a+b;}", cc);
+		
+		CtMethod m = new CtMethod(CtClass.intType,"add",
+				new CtClass[]{CtClass.intType,CtClass.intType},cc);
+		m.setModifiers(Modifier.PUBLIC);
+		m.setBody("{System.out.println(\"www.sxt.cn\");return $1+$2;}");
+		
+		cc.addMethod(m);
+		
+		//通过反射调用新生成的方法
+		Class clazz = cc.toClass();
+		Object obj = clazz.newInstance();  //通过调用Emp无参构造器，创建新的Emp对象
+		Method method = clazz.getDeclaredMethod("add", int.class,int.class);
+		Object result = method.invoke(obj, 200,300);
+		System.out.println(result);
+	}
+	
+	/**
+	 * 修改已有的方法的信息，修改方法体的内容
+	 * @throws Exception
+	 */
+	public static void test03() throws Exception{
+		ClassPool pool = ClassPool.getDefault();
+		CtClass cc = pool.get("com.bjsxt.test.Emp");
+		
+		CtMethod cm = cc.getDeclaredMethod("sayHello",new CtClass[]{CtClass.intType});
+		cm.insertBefore("System.out.println($1);System.out.println(\"start!!!\");");
+		cm.insertAt(9, "int b=3;System.out.println(\"b=\"+b);");
+		cm.insertAfter("System.out.println(\"end!!!\");");
+		
+		//通过反射调用新生成的方法
+		Class clazz = cc.toClass();
+		Object obj = clazz.newInstance();  //通过调用Emp无参构造器，创建新的Emp对象
+		Method method = clazz.getDeclaredMethod("sayHello", int.class);
+		method.invoke(obj, 300);
+	}
+
+	/**
+	 * 属性的操作
+	 * @throws Exception
+	 */
+	public static void test04() throws Exception{
+		ClassPool pool = ClassPool.getDefault();
+		CtClass cc = pool.get("com.bjsxt.test.Emp");
+		
+//		CtField f1 = CtField.make("private int empno;", cc);
+		CtField f1 = new CtField(CtClass.intType,"salary",cc);
+		f1.setModifiers(Modifier.PRIVATE);
+		cc.addField(f1);
+		
+//		cc.getDeclaredField("ename");   //获取指定的属性
+		
+		//增加相应的set和get方法
+		cc.addMethod(CtNewMethod.getter("getSalary", f1));;
+		cc.addMethod(CtNewMethod.getter("setSalary", f1));;
+		
+	}
+	
+	/**
+	 * 构造方法的操作
+	 * @throws Exception
+	 */
+	public static void test05() throws Exception {
+		ClassPool pool = ClassPool.getDefault();
+		CtClass cc = pool.get("com.bjsxt.test.Emp");
+		
+		CtConstructor[] cs = cc.getConstructors();
+		for (CtConstructor c : cs) {
+			System.out.println(c.getLongName());
+		}
+	}
+	
+	/**
+	 * 注解的操作
+	 * @throws Exception
+	 */
+	public static void test06() throws Exception{
+		 CtClass cc = ClassPool.getDefault().get("com.bjsxt.test.Emp"); 
+		 Object[] all = cc.getAnnotations();
+		 Author a = (Author)all[0]; 
+		 String name = a.name();
+		 int year = a.year();
+		 System.out.println("name: " + name + ", year: " + year);
+
+	}
+	
+	
+	public static void main(String[] args) throws Exception {
+		test06();
+	}
+}
+```
+
+
+
+
+
+##### javassist库的API的局限性：
+
+![1569068766154](assets/1569068766154.png)
+
+
+
+### JVM运行和类加载全过程
+
+注意：类加载，加载的是class文件，一般情况下都是先编译（javac）生成class文件，然后由类加载器去加载该class文件。
+
+研究类加载过程有助于了解JVM运行过程，更深入的了解java动态性（反射和字节码操作等）、热部署、动态加载。
+
+- 类加载机制：分为三步，加载、链接、初始化。
+
+  ![1569069309163](assets/1569069309163.png)
+
+  ![1569070528159](assets/1569070528159.png)
+
+  ![1569108297840](assets/1569108297840.png)
+
+注释：
+
+- 初始化中的`类构造器<clinit>()方法`是由类中的静态变量的赋值操作和静态代码块合并到一起而形成的，且是线程安全的。
+- 初始化中最后一行提到的`静态域`其实就是`静态变量`。
+
+
+
+### 类加载器
+
+作用：
+
+![1569111332119](assets/1569111332119.png)
+
+
+
+##### 类加载器的层次结构：
+
+![1569111960838](assets/1569111960838.png)
+
+tips:
+
+- 图中的几个类加器并不是继承关系，而是组合关系（逻辑上还是可以理解为继承关系）。
+- 引导类加载器：该加载器是最顶层的加载器
+- 扩展类加载器、应用程序类加载器（有些也叫 system class loader）、自定义类加载器，都是需要继承`java.lang.ClassLoader`类。
+
+考虑一下，spring 中是不是也是自定义了类加载呢
+
+
+
+##### java.lang.ClassLoader
+
+`java.lang.ClassLoader`类的作用：
+
+![1569113231379](assets/1569113231379.png)
+
+
+
+##### 类加载器的代理模式
+
+![1569114224116](assets/1569114224116.png)
+
+tips:
+
+- 引导类加载器、扩展类加载器、应用类加载器使用的都是双亲委托机制。
+- 双亲委托机制是代理模式中的一种。
+
+
+
+##### 自定义类加载器
+
+![1569117220163](assets/1569117220163.png)
+
+
+
+**自定义的文件系统类加载器demo：**
+
+```java
+/**
+ * 自定义文件系统类加载器
+ * @author Cboy
+ *
+ */
+public class FileSystemClassLoader extends ClassLoader {
+	
+	//com.bjsxt.test.User   --> d:/myjava/  com/bjsxt/test/User.class      
+	private String rootDir;
+	
+	public FileSystemClassLoader(String rootDir){
+		this.rootDir = rootDir;
+	}
+	
+	@Override
+	protected Class<?> findClass(String name) throws ClassNotFoundException {
+		
+		Class<?> c = findLoadedClass(name);
+		
+		//应该要先查询有没有加载过这个类。如果已经加载，则直接返回加载好的类。如果没有，则加载新的类。
+		if(c!=null){
+			return c;
+		}else{
+			ClassLoader parent = this.getParent();
+			try {
+				c = parent.loadClass(name);	   //委派给父类加载
+			} catch (Exception e) {
+//				e.printStackTrace();
+			}
+			
+			if(c!=null){
+				return c;
+			}else{
+				byte[] classData = getClassData(name);
+				if(classData==null){
+					throw new ClassNotFoundException();
+				}else{
+					c = defineClass(name, classData, 0,classData.length);
+				}
+			}
+			
+		}
+		
+		return c;
+		
+	}
+	
+	private byte[] getClassData(String classname){   //com.bjsxt.test.User   d:/myjava/  com/bjsxt/test/User.class
+		String path = rootDir +"/"+ classname.replace('.', '/')+".class";
+		
+//		IOUtils,可以使用它将流中的数据转成字节数组
+		InputStream is = null;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try{
+			is  = new FileInputStream(path);
+			
+			byte[] buffer = new byte[1024];
+			int temp=0;
+			while((temp=is.read(buffer))!=-1){
+				baos.write(buffer, 0, temp);
+			}
+			
+			return baos.toByteArray();
+		}catch(Exception e){
+			e.printStackTrace();
+			return null;
+		}finally{
+			try {
+				if(is!=null){
+					is.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				if(baos!=null){
+					baos.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+		
+}
+```
+
+
+
+**自定义的网络文件类加载器demo:**
+
+```java
+/**
+ * 网络类加载器
+ * @author Cboy
+ *
+ */
+public class NetClassLoader extends ClassLoader {
+	
+	//com.bjsxt.test.User   --> www.sxt.cn/myjava/  com/bjsxt/test/User.class      
+	private String rootUrl;
+	
+	public NetClassLoader(String rootUrl){
+		this.rootUrl = rootUrl;
+	}
+	
+	@Override
+	protected Class<?> findClass(String name) throws ClassNotFoundException {
+		
+		Class<?> c = findLoadedClass(name);
+		
+		//应该要先查询有没有加载过这个类。如果已经加载，则直接返回加载好的类。如果没有，则加载新的类。
+		if(c!=null){
+			return c;
+		}else{
+			ClassLoader parent = this.getParent();
+			try {
+				c = parent.loadClass(name);	   //委派给父类加载
+			} catch (Exception e) {
+//				e.printStackTrace();
+			}
+			
+			if(c!=null){
+				return c;
+			}else{
+				byte[] classData = getClassData(name);
+				if(classData==null){
+					throw new ClassNotFoundException();
+				}else{
+					c = defineClass(name, classData, 0,classData.length);
+				}
+			}
+			
+		}
+		
+		return c;
+		
+	}
+	
+	private byte[] getClassData(String classname){   //com.bjsxt.test.User   d:/myjava/  com/bjsxt/test/User.class
+		String path = rootUrl +"/"+ classname.replace('.', '/')+".class";
+		
+//		IOUtils,可以使用它将流中的数据转成字节数组
+		InputStream is = null;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try{
+			URL url = new URL(path);
+			is  = url.openStream();
+			
+			byte[] buffer = new byte[1024];
+			int temp=0;
+			while((temp=is.read(buffer))!=-1){
+				baos.write(buffer, 0, temp);
+			}
+			
+			return baos.toByteArray();
+		}catch(Exception e){
+			e.printStackTrace();
+			return null;
+		}finally{
+			try {
+				if(is!=null){
+					is.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				if(baos!=null){
+					baos.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
+	
+	
+	
+}
+```
+
+
+
+**自定义的文件系统类加载器demo：**
+
+文件加密工具类：
+
+```java
+/**
+ * 加密工具类
+ * @author Cboy
+ *
+ */
+public class EncrptUtil {
+	
+	public static void main(String[] args) {
+		encrpt("d:/myjava/HelloWorld.class", "d:/myjava/temp/HelloWorld.class");
+	}
+	
+	public static void encrpt(String src, String dest){
+		FileInputStream fis = null;
+		FileOutputStream fos = null;
+		
+		try {
+			fis = new FileInputStream(src);
+			fos = new FileOutputStream(dest);
+			
+			int temp = -1;
+			while((temp=fis.read())!=-1){
+				fos.write(temp^0xff);  //取反操作
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			try {
+				if(fis!=null){
+					fis.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				if(fos!=null){
+					fos.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
+	
+}
+
+```
+
+解密：
+
+```java
+/**
+ * 加载文件系统中加密后的class字节码的类加载器
+ * @author Cboy
+ *
+ */
+public class DecrptClassLoader  extends ClassLoader {
+	
+	//com.bjsxt.test.User   --> d:/myjava/  com/bjsxt/test/User.class      
+	private String rootDir;
+	
+	public DecrptClassLoader(String rootDir){
+		this.rootDir = rootDir;
+	}
+	
+	@Override
+	protected Class<?> findClass(String name) throws ClassNotFoundException {
+		
+		Class<?> c = findLoadedClass(name);
+		
+		//应该要先查询有没有加载过这个类。如果已经加载，则直接返回加载好的类。如果没有，则加载新的类。
+		if(c!=null){
+			return c;
+		}else{
+			ClassLoader parent = this.getParent();
+			try {
+				c = parent.loadClass(name);	   //委派给父类加载
+			} catch (Exception e) {
+//				e.printStackTrace();
+			}
+			
+			if(c!=null){
+				return c;
+			}else{
+				byte[] classData = getClassData(name);
+				if(classData==null){
+					throw new ClassNotFoundException();
+				}else{
+					c = defineClass(name, classData, 0,classData.length);
+				}
+			}
+			
+		}
+		
+		return c;
+		
+	}
+	
+	private byte[] getClassData(String classname){   //com.bjsxt.test.User   d:/myjava/  com/bjsxt/test/User.class
+		String path = rootDir +"/"+ classname.replace('.', '/')+".class";
+		
+//		IOUtils,可以使用它将流中的数据转成字节数组
+		InputStream is = null;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try{
+			is  = new FileInputStream(path);
+			
+			
+			
+			int temp = -1;
+			while((temp=is.read())!=-1){
+				baos.write(temp^0xff);  //取反操作,相当于解密
+			}
+			
+			return baos.toByteArray();
+		}catch(Exception e){
+			e.printStackTrace();
+			return null;
+		}finally{
+			try {
+				if(is!=null){
+					is.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				if(baos!=null){
+					baos.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
+	
+}
+
+```
+
+
+
+**线程上下文类加载器：**
+
+![1569198414042](assets/1569198414042.png)
+
+
+
+demo:
+
+```java
+/**
+ * 线程上下文类加载器的测试
+ * @author Cboy
+ *
+ */
+public class Demo05 {
+	public static void main(String[] args) throws Exception {
+		ClassLoader loader = Demo05.class.getClassLoader();
+		System.out.println(loader);
+		
+		
+		ClassLoader loader2 = Thread.currentThread().getContextClassLoader();
+		System.out.println(loader2);
+		//此处设置新的类加载（将之前写的文件系统类加载器设置成线程上下文类加载器，其实就是不采用默认的双亲委托机制，由我们自己指定的类加载来加载）
+		Thread.currentThread().setContextClassLoader(new FileSystemClassLoader("d:/myjava/"));
+		System.out.println(Thread.currentThread().getContextClassLoader());
+		
+		//用新设置的线程上下文类加载器来加载class文件
+		Class<Demo01> c = (Class<Demo01>) Thread.currentThread().getContextClassLoader().loadClass("com.bjsxt.test.Demo01");
+		System.out.println(c);
+		System.out.println(c.getClassLoader());
+		
+	}
+}
+```
+
+
+
+##### tomcat服务器的类加机制
+
+![1569199202133](assets/1569199202133.png)
+
+
+
 
 
 ### 模板方法模式（等同于Callback(回调)/Hook(钩子)）
@@ -635,9 +1505,73 @@ System.out.println(sb);     //结果为 2方法链true3
 `tips:`  
 
 1. 静态成员是不属于对象（类的实例）的，也就是说不管创建多少对象，静态成员始终只有一个（即只被初始化一次，且在`该类第一次被实例化时`或者`用类名直接调用其中的静态成员变量时`初始化，以后的该类实例化都不会再初始化静态成员变量）。静态成员由类名直接调用。
+
 2. **静态成员的作用域是整个类**，所以不存在静态的局部变量（局部变量只属于某个方法）
+
 3. 当类中包含`静态成员变量`和`非静态成员变量`时，会先初始化`静态成员变量`（该类是第一次被实例化时或者用类名直接调用其中的静态成员变量时），若有多个`静态成员变量`则从上到下依次初始化；接着初始化`非静态成员变量`，若有多个`非静态成员变量`也是从上到下依次初始化。
+
 4. 如果存在继承，则会优先调用父类的无参构造。当然，如果父类中也存在静态成员变量，那么也会先初始化静态成员变量再执行那个无参构造器。
+
+5. （被动引用）当用类名调用`静态常量（static final）或者常量（反正只要是常量）`时，不会发生类的初始化，因为常量是放在常量池中的，在链接的过程中，会将常量池中的符号引用替换为直接引用（也就是说这时外界可以在初始化类之前就可以直接调用这些常量），而静态数据是被加载到了方法区中。
+
+6. （被动引用）如果通过数组定义类引用，那么也不会发生类的初始化（意思就是，类被当作数组的类型的时候，该类是不会被初始化的），示例代码：`Student[] s = new Student[]`,此时这个Student类是不会被初始化的。
+
+7. （被动引用）通过子类引用了父类的静态变量，是不会初始化子类的，但是会初始化父类。
+
+   类的`主动引用`和`被动引用`(涉及到类的初始化)，demo如下：
+
+   ```java
+   public class Demo01 {
+   	static{
+   		System.out.println("静态初始化Demo01");
+   	}
+   	
+   	
+   	public static void main(String[] args) throws Exception {
+   		System.out.println("Demo01的main方法！");
+   		System.out.println(System.getProperty("java.class.path"));
+   		
+   		//主动引用
+   //		new A();    直接new
+   //		System.out.println(A.width);    //调用静态变量（静态常量除外）
+   //		Class.forName("com.bjsxt.test.A");   //反射
+   		
+   		
+   		//被动引用
+   //		System.out.println(A.MAX);  //调用常量
+   //		A[] as = new A[10];    //被当作数组的类型引用
+   		System.out.println(B.width);   //引用父类的静态变量
+   		
+   	}
+   }
+   
+   class B  extends A {
+   	static {
+   		System.out.println("静态初始化B");
+   	}
+   }
+   
+   class A extends A_Father {
+   	public static int width=100;   //静态变量，静态域    field
+   	public static final  int MAX=100; 
+   	
+   	static {
+   		System.out.println("静态初始化类A");
+   		width=300;
+   	}
+   	public A(){
+   		System.out.println("创建A类的对象");
+   	}
+   }
+   
+   class A_Father extends Object {
+   	static {
+   		System.out.println("静态初始化A_Father");
+   	}
+   }
+   
+   ```
+
 
 
 
